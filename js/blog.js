@@ -311,7 +311,7 @@ const blogPosts = {
   }
 };
 
-// Update Blog Page
+// Check if the blog post exists
 if (blogPosts[postID]) {
   const post = blogPosts[postID];
 
@@ -348,12 +348,21 @@ if (blogPosts[postID]) {
     .map(category => `<li style="display: flex; justify-content: space-between;"><a href="#">${category.name}</a> <span>(${category.count})</span></li>`)
     .join("");
 
-  // Function to Update Comments Section
+  // Load Comments from Local Storage
   function updateCommentsSection() {
+    const postID = new URLSearchParams(window.location.search).get("post");
+    if (!blogPosts[postID]) return;
+
+    // Retrieve comments from localStorage
+    const storedComments = localStorage.getItem(`comments-${postID}`);
+    if (storedComments) {
+      blogPosts[postID].comments = JSON.parse(storedComments);
+    }
+
     const commentSection = document.getElementById("comments-section");
-    if (post.comments.length > 0) {
-      let commentHTML = `<h3 class="mb-5">${post.comments.length} Comments</h3><ul class="comment-list">`;
-      post.comments.forEach(comment => {
+    if (blogPosts[postID].comments.length > 0) {
+      let commentHTML = `<h3 class="mb-5">${blogPosts[postID].comments.length} Comments</h3><ul class="comment-list">`;
+      blogPosts[postID].comments.forEach(comment => {
         commentHTML += `
           <li class="comment" id="comment-${comment.id}">
             <div class="vcard bio"><img src="images/person_1.jpg" alt="User Image"></div>
@@ -383,14 +392,60 @@ if (blogPosts[postID]) {
       commentSection.innerHTML = `<h3>No comments yet. Be the first to comment!</h3>`;
     }
   }
+
   updateCommentsSection();
 
-  // Function to Delete a Comment
+  // Delete a Comment
   function deleteComment(commentId) {
-    post.comments = post.comments.filter(comment => comment.id !== commentId);
-    updateCommentsSection();
+    const postID = new URLSearchParams(window.location.search).get("post");
+    if (!blogPosts[postID]) return;
+
+    // Remove comment from array
+    blogPosts[postID].comments = blogPosts[postID].comments.filter(comment => comment.id !== commentId);
+
+    // Update localStorage
+    localStorage.setItem(`comments-${postID}`, JSON.stringify(blogPosts[postID].comments));
+
+    updateCommentsSection(); // Refresh comments without reloading
   }
+
+  // ✅ Prevent Form Submission from Reloading the Page
+  document.getElementById("comment-form").addEventListener("submit", function (event) {
+    event.preventDefault(); // 🚀 This prevents page refresh!
+
+    const name = document.getElementById("comment-name").value.trim();
+    const email = document.getElementById("comment-email").value.trim();
+    const website = document.getElementById("comment-website").value.trim();
+    const message = document.getElementById("comment-message").value.trim();
+
+    if (name === "" || email === "" || message === "") {
+      alert("Please fill in all required fields!");
+      return;
+    }
+
+    // Create a new comment
+    const newComment = {
+      id: Date.now(),
+      name: name,
+      date: new Date().toLocaleDateString(),
+      message: message
+    };
+
+    // Add comment to post
+    blogPosts[postID].comments.push(newComment);
+
+    // Save to localStorage
+    localStorage.setItem(`comments-${postID}`, JSON.stringify(blogPosts[postID].comments));
+
+    // Clear form fields
+    document.getElementById("comment-form").reset();
+
+    // Update the comments section dynamically
+    updateCommentsSection();
+  });
+
 } else {
+  // Handle non-existent blog posts
   document.getElementById("blog-title").innerText = "Blog Not Found";
   document.getElementById("blog-image").style.display = "none";
   document.getElementById("blog-content").innerHTML = "<p>The blog post you're looking for doesn't exist.</p>";
