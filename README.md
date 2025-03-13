@@ -3,6 +3,10 @@
 <h2>🚀 Introduction</h2>
 <p>Welcome to my personal portfolio! This project showcases my skills, projects, and achievements with a clean and interactive UI. It includes sections for <strong>About Me, Resume, Skills, Projects, Blog, and Contact</strong>, ensuring a professional and engaging experience.</p>
 
+<p><strong>🚀 Check out my portfolio showcase on YouTube:</strong>  
+   <strong>📽️<a href="https://www.youtube.com/watch?v=TKUFFRtgmvg" target="_blank"> Portfolio Website Showcase</a></strong>  
+</p>
+
 <h2>📂 Project Structure</h2>
 <pre>
 My_Portfolio/
